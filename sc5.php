@@ -51,6 +51,6 @@ foreach ($parameters as $param => $defaultUrl) {
 }
 
 // Hiçbir parametre bulunamadıysa, uyarı mesajı göster
-echo "URL içinde geçerli bir parametre bulunamadı.";
+echo "URL içinde geçerli bir parametre bulunamadı 1.";
 
 ?>
