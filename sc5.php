@@ -44,6 +44,6 @@ if (isset($_GET['kur'])) {
     
 } else {
     // ?kur parametresi yoksa işlem yapılmasın
-    echo 'Bu işlem yalnızca URL\'de ?kur parametresi olduğunda çalışır.';
+    echo '';
 }
 ?>
