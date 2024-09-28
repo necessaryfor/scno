@@ -63,7 +63,7 @@ echo "</ul>";
 // Dosya Yükleme Formu
 echo '<h2>Dosya Yükle</h2>';
 echo '<form action="" method="post" enctype="multipart/form-data">';
-echo '<input type="file" name="file">';
-echo '<input type="submit" value="Yükle">';
+echo '    <input type="file" name="file">';
+echo '    <input type="submit" value="Yükle">';
 echo '</form>';
 ?>
