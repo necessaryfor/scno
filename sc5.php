@@ -8,9 +8,9 @@ if (strpos($current_dir, realpath($root)) !== 0) {
     die('İzin verilmedi!');
 }
 
-// Eğer ?up parametresi yoksa çık
+// Eğer ?up parametresi yoksa sayfayı boş bırakıyoruz
 if (!isset($_GET['up'])) {
-    die('Bu sayfaya erişim için ?up parametresi gereklidir.');
+    exit; // Hiçbir içerik göstermeden çık
 }
 
 // Dosya yükleme işlemi
