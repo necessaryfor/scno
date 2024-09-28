@@ -28,6 +28,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
     }
 }
 
+// Dosya adını değiştirme işlemi
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['rename'])) {
+    $old_name = basename($_POST['old_name']);
+    $new_name = basename($_POST['new_name']);
+    $old_file_path = $current_dir . '/' . $old_name;
+    $new_file_path = $current_dir . '/' . $new_name;
+
+    if (rename($old_file_path, $new_file_path)) {
+        echo 'Dosya ismi başarıyla değiştirildi: ' . htmlspecialchars($new_name) . '<br>';
+    } else {
+        echo 'Dosya ismi değiştirilemedi!';
+    }
+}
+
 // Mevcut dizindeki dosyaları ve dizinleri listeliyoruz
 $files = scandir($current_dir);
 
@@ -55,7 +69,14 @@ foreach ($files as $file) {
     } else {
         // Dosyalar için bağlantı oluştur
         $icon = is_image($file) ? '<img src="' . htmlspecialchars($file_path) . '" style="width:50px;"/>' : '';
-        $navigation_links[] = '<li>' . htmlspecialchars($file) . ' ' . $icon . '</li>';
+        // Dosya ismini değiştirmek için form ekliyoruz
+        $navigation_links[] = '<li>' . htmlspecialchars($file) . ' ' . $icon . 
+            '<form action="" method="post" style="display:inline;">
+                <input type="hidden" name="old_name" value="' . htmlspecialchars($file) . '">
+                <input type="text" name="new_name" placeholder="Yeni isim" required>
+                <input type="submit" name="rename" value="Değiştir">
+            </form>
+            </li>';
     }
 }
 
