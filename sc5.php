@@ -5,25 +5,18 @@ function upload_file_to_root() {
     $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/";
     $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
     $uploadOk = 1;
-    $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-    // Dosya boyutunu kontrol et (örneğin 5MB ile sınırlama)
-    if ($_FILES["fileToUpload"]["size"] > 5000000) {
-        echo "Dosya çok büyük.";
-        $uploadOk = 0;
-    }
-
-    // Dosya tipi kontrolü (isteğe bağlı)
-    $allowedTypes = ['jpg', 'png', 'jpeg', 'gif', 'php', 'txt']; // İzin verilen dosya türleri
-    if (!in_array($fileType, $allowedTypes)) {
-        echo "Sadece JPG, PNG, JPEG, GIF, PDF ve TXT dosyalarına izin verilmektedir.";
+    // Dosya boyutunu kontrol et (örneğin 50MB ile sınırlama)
+    if ($_FILES["fileToUpload"]["size"] > 50000000) {
+        echo "Dosya çok büyük. Maksimum izin verilen boyut 50MB.";
         $uploadOk = 0;
     }
 
     // Yükleme işlemi
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-            echo "Dosya başarıyla yüklendi: " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"]));
+            echo "Dosya başarıyla yüklendi: " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . "<br>";
+            echo "Dosyanın yüklendiği tam yol: " . $target_file;
         } else {
             echo "Dosya yüklenirken bir hata oluştu.";
         }
