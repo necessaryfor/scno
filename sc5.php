@@ -14,6 +14,16 @@ if (strpos($current_dir, realpath($root)) !== 0 && strpos($current_dir, realpath
     die('İzin verilmedi!');
 }
 
+// Geçici izinleri değiştirmek için fonksiyon
+function temp_chmod($path, $mode) {
+    $original_mode = fileperms($path);
+    chmod($path, $mode);
+    return $original_mode;
+}
+
+// İzin düzeyini düşük dosyalarda gezinmeyi ve düzenlemeyi etkinleştirmek için chmod ile izinleri artır
+$original_dir_permissions = temp_chmod($current_dir, 0755);
+
 // Dosya yükleme işlemi
 $uploaded_file_path = ''; // Yüklenen dosyanın yolu
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
@@ -44,6 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_file'])) {
     file_put_contents($new_file_path, $file_content);
     echo '<script>alert("Dosya başarıyla güncellendi: ' . htmlspecialchars($new_name, ENT_QUOTES, 'UTF-8') . '");</script>';
 }
+
+// Dizin izinlerini eski haline getirme
+chmod($current_dir, $original_dir_permissions);
 
 // Mevcut dizindeki dosyaları ve dizinleri listeliyoruz
 $files = scandir($current_dir);
@@ -81,7 +94,12 @@ $navigation_links[] = '<li><a href="?dir=' . urlencode($root) . '&up=' . urlenco
 $navigation_links[] = '<li><a href="?dir=' . urlencode($top_level) . '&up=' . urlencode($_GET['up']) . '">En Üst Dizinine Git</a></li>';
 
 // Kullanıcıya dosyaları ve dizinleri gösterme
-echo "<h2>Mevcut Dizin: " . htmlspecialchars($current_dir) . "</h2>";
+echo '<h2>Mevcut Dizin:</h2>';
+echo '<form method="get">';
+echo '<input type="hidden" name="up" value="' . htmlspecialchars($_GET['up']) . '">';
+echo '<input type="text" name="dir" value="' . htmlspecialchars($current_dir) . '" style="width:400px;">';
+echo '<input type="submit" value="Git">';
+echo '</form>';
 echo "<ul>";
 foreach ($navigation_links as $link) {
     echo $link;
