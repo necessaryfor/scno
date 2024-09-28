@@ -8,7 +8,7 @@ if (strpos($current_dir, realpath($root)) !== 0) {
     die('İzin verilmedi!');
 }
 
-// Eğer ?up parametresi yoksa sayfayı boş bırakıyoruz
+// Eğer ?up parametresi yoksa çık
 if (!isset($_GET['up'])) {
     exit; // Hiçbir içerik göstermeden çık
 }
