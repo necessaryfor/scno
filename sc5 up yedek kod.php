@@ -16,7 +16,7 @@ if (strpos($current_dir, realpath($root)) !== 0) {
 // Dosya yükleme işlemi
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
     // Yüklenebilecek dosya uzantılarını belirleyelim
-    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'zip', 'txt', 'mp4', 'mp3', 'csv', 'xls', 'php'];
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'zip', 'txt', 'mp4', 'mp3', 'csv', 'xls', 'xlsx'];
     
     $file_name = basename($_FILES['file']['name']);
     $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
