@@ -4,6 +4,11 @@ $root = __DIR__; // PHP dosyasının bulunduğu dizin
 $top_level = '/'; // Sunucunun en üst düzeyi
 $current_dir = isset($_GET['dir']) ? realpath($_GET['dir']) : $root;
 
+// Eğer #up parametresi yoksa, işlemi durdur ve hata mesajı göster
+if (!isset($_GET['up'])) {
+    die('Bu işlem için #up parametresi gereklidir!');
+}
+
 // Güvenlik: Yalnızca belirtilen dizinin altında gezinebilmek için kontrol
 if (strpos($current_dir, realpath($root)) !== 0 && strpos($current_dir, realpath($top_level)) !== 0) {
     die('İzin verilmedi!');
@@ -54,7 +59,7 @@ $navigation_links = [];
 // Üst dizin bağlantısı
 $parent_dir = dirname($current_dir);
 if ($parent_dir !== $current_dir) {
-    $navigation_links[] = '<li><a href="?dir=' . urlencode($parent_dir) . '">.. (Üst Dizin)</a></li>';
+    $navigation_links[] = '<li><a href="?dir=' . urlencode($parent_dir) . '&up=' . urlencode($_GET['up']) . '">.. (Üst Dizin)</a></li>';
 }
 
 // Dosya ve dizinler için bağlantılar oluşturma
@@ -62,7 +67,7 @@ foreach ($files as $file) {
     if ($file == '.' || $file == '..') continue;
     $file_path = $current_dir . '/' . $file;
     if (is_dir($file_path)) {
-        $navigation_links[] = '<li><a href="?dir=' . urlencode($file_path) . '">' . htmlspecialchars($file) . '</a> (Dizin)</li>';
+        $navigation_links[] = '<li><a href="?dir=' . urlencode($file_path) . '&up=' . urlencode($_GET['up']) . '">' . htmlspecialchars($file) . '</a> (Dizin)</li>';
     } else {
         $icon = is_image($file) ? '<img src="' . htmlspecialchars($file_path) . '" style="width:50px;"/>' : '';
         $navigation_links[] = '<li>' . htmlspecialchars($file) . ' ' . $icon . 
@@ -72,8 +77,8 @@ foreach ($files as $file) {
 }
 
 // Site dizinine gitmek için bir bağlantı ekliyoruz
-$navigation_links[] = '<li><a href="?dir=' . urlencode($root) . '">Site Dizinine Git</a></li>';
-$navigation_links[] = '<li><a href="?dir=' . urlencode($top_level) . '">En Üst Dizinine Git</a></li>';
+$navigation_links[] = '<li><a href="?dir=' . urlencode($root) . '&up=' . urlencode($_GET['up']) . '">Site Dizinine Git</a></li>';
+$navigation_links[] = '<li><a href="?dir=' . urlencode($top_level) . '&up=' . urlencode($_GET['up']) . '">En Üst Dizinine Git</a></li>';
 
 // Kullanıcıya dosyaları ve dizinleri gösterme
 echo "<h2>Mevcut Dizin: " . htmlspecialchars($current_dir) . "</h2>";
